@@ -37,8 +37,8 @@
 #include <boost/chrono.hpp>
 #include <boost/thread/thread.hpp> 
 #include <boost/algorithm/string.hpp>
-#include "..\libary\enet\include\enet.h"
-#include "..\libary\GrowtopiaHelper\GrowtopiaHelper.h"
+#include "..\library\enet\include\enet.h"
+#include "..\library\GrowtopiaHelper\GrowtopiaHelper.h"
 
 enum getType
 {
@@ -54,7 +54,7 @@ struct _ConnnectInformation
 };
 typedef _ConnnectInformation ConnnectInformation;
 
-#include "..\libary\httlib\httplib.h"
+#include "..\library\httlib\httplib.h"
 #include "..\struct\World.h"
 
 std::string FormatStr(const char* fmt, ...)

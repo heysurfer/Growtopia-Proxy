@@ -2,60 +2,60 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\Main\Main.cpp" />
-    <ClCompile Include="..\libary\enet\callbacks.c">
+    <ClCompile Include="..\library\enet\callbacks.c">
       <Filter>Enet</Filter>
     </ClCompile>
-    <ClCompile Include="..\libary\enet\compress.c">
+    <ClCompile Include="..\library\enet\compress.c">
       <Filter>Enet</Filter>
     </ClCompile>
-    <ClCompile Include="..\libary\enet\host.c">
+    <ClCompile Include="..\library\enet\host.c">
       <Filter>Enet</Filter>
     </ClCompile>
-    <ClCompile Include="..\libary\enet\list.c">
+    <ClCompile Include="..\library\enet\list.c">
       <Filter>Enet</Filter>
     </ClCompile>
-    <ClCompile Include="..\libary\enet\packet.c">
+    <ClCompile Include="..\library\enet\packet.c">
       <Filter>Enet</Filter>
     </ClCompile>
-    <ClCompile Include="..\libary\enet\peer.c">
+    <ClCompile Include="..\library\enet\peer.c">
       <Filter>Enet</Filter>
     </ClCompile>
-    <ClCompile Include="..\libary\enet\protocol.c">
+    <ClCompile Include="..\library\enet\protocol.c">
       <Filter>Enet</Filter>
     </ClCompile>
-    <ClCompile Include="..\libary\enet\unix.c">
+    <ClCompile Include="..\library\enet\unix.c">
       <Filter>Enet</Filter>
     </ClCompile>
-    <ClCompile Include="..\libary\enet\win32.c">
+    <ClCompile Include="..\library\enet\win32.c">
       <Filter>Enet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\libary\enet\include\callbacks.h">
+    <ClInclude Include="..\library\enet\include\callbacks.h">
       <Filter>Enet</Filter>
     </ClInclude>
-    <ClInclude Include="..\libary\enet\include\enet.h">
+    <ClInclude Include="..\library\enet\include\enet.h">
       <Filter>Enet</Filter>
     </ClInclude>
-    <ClInclude Include="..\libary\enet\include\list.h">
+    <ClInclude Include="..\library\enet\include\list.h">
       <Filter>Enet</Filter>
     </ClInclude>
-    <ClInclude Include="..\libary\enet\include\protocol.h">
+    <ClInclude Include="..\library\enet\include\protocol.h">
       <Filter>Enet</Filter>
     </ClInclude>
-    <ClInclude Include="..\libary\enet\include\time2.h">
+    <ClInclude Include="..\library\enet\include\time2.h">
       <Filter>Enet</Filter>
     </ClInclude>
-    <ClInclude Include="..\libary\enet\include\types.h">
+    <ClInclude Include="..\library\enet\include\types.h">
       <Filter>Enet</Filter>
     </ClInclude>
-    <ClInclude Include="..\libary\enet\include\unix.h">
+    <ClInclude Include="..\library\enet\include\unix.h">
       <Filter>Enet</Filter>
     </ClInclude>
-    <ClInclude Include="..\libary\enet\include\utility.h">
+    <ClInclude Include="..\library\enet\include\utility.h">
       <Filter>Enet</Filter>
     </ClInclude>
-    <ClInclude Include="..\libary\enet\include\win32.h">
+    <ClInclude Include="..\library\enet\include\win32.h">
       <Filter>Enet</Filter>
     </ClInclude>
     <ClInclude Include="..\Class\EnetManager.h">
@@ -73,7 +73,7 @@
     <ClInclude Include="..\struct\World.h">
       <Filter>Class</Filter>
     </ClInclude>
-    <ClInclude Include="..\libary\GrowtopiaHelper\GrowtopiaHelper.h">
+    <ClInclude Include="..\library\GrowtopiaHelper\GrowtopiaHelper.h">
       <Filter>Helper</Filter>
     </ClInclude>
     <ClInclude Include="..\Main\pch.h">

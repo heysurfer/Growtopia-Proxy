@@ -17,7 +17,7 @@
 #include <vector>
 #include <chrono>
 #include <cmath>
-#include "..\..\libary\enet\include\enet.h"
+#include "..\..\library\enet\include\enet.h"
 #include <random>
 
 #define HashCoord(x, y) (((y) * 100) + (x))

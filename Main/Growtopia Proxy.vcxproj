@@ -19,15 +19,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\libary\enet\callbacks.c" />
-    <ClCompile Include="..\libary\enet\compress.c" />
-    <ClCompile Include="..\libary\enet\host.c" />
-    <ClCompile Include="..\libary\enet\list.c" />
-    <ClCompile Include="..\libary\enet\packet.c" />
-    <ClCompile Include="..\libary\enet\peer.c" />
-    <ClCompile Include="..\libary\enet\protocol.c" />
-    <ClCompile Include="..\libary\enet\unix.c" />
-    <ClCompile Include="..\libary\enet\win32.c" />
+    <ClCompile Include="..\library\enet\callbacks.c" />
+    <ClCompile Include="..\library\enet\compress.c" />
+    <ClCompile Include="..\library\enet\host.c" />
+    <ClCompile Include="..\library\enet\list.c" />
+    <ClCompile Include="..\library\enet\packet.c" />
+    <ClCompile Include="..\library\enet\peer.c" />
+    <ClCompile Include="..\library\enet\protocol.c" />
+    <ClCompile Include="..\library\enet\unix.c" />
+    <ClCompile Include="..\library\enet\win32.c" />
     <ClCompile Include="..\Main\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -35,16 +35,16 @@
     <ClInclude Include="..\Class\HttpServer.h" />
     <ClInclude Include="..\Class\Information.h" />
     <ClInclude Include="..\Class\ServerHandle.h" />
-    <ClInclude Include="..\libary\enet\include\callbacks.h" />
-    <ClInclude Include="..\libary\enet\include\enet.h" />
-    <ClInclude Include="..\libary\enet\include\list.h" />
-    <ClInclude Include="..\libary\enet\include\protocol.h" />
-    <ClInclude Include="..\libary\enet\include\time2.h" />
-    <ClInclude Include="..\libary\enet\include\types.h" />
-    <ClInclude Include="..\libary\enet\include\unix.h" />
-    <ClInclude Include="..\libary\enet\include\utility.h" />
-    <ClInclude Include="..\libary\enet\include\win32.h" />
-    <ClInclude Include="..\libary\GrowtopiaHelper\GrowtopiaHelper.h" />
+    <ClInclude Include="..\library\enet\include\callbacks.h" />
+    <ClInclude Include="..\library\enet\include\enet.h" />
+    <ClInclude Include="..\library\enet\include\list.h" />
+    <ClInclude Include="..\library\enet\include\protocol.h" />
+    <ClInclude Include="..\library\enet\include\time2.h" />
+    <ClInclude Include="..\library\enet\include\types.h" />
+    <ClInclude Include="..\library\enet\include\unix.h" />
+    <ClInclude Include="..\library\enet\include\utility.h" />
+    <ClInclude Include="..\library\enet\include\win32.h" />
+    <ClInclude Include="..\library\GrowtopiaHelper\GrowtopiaHelper.h" />
     <ClInclude Include="..\struct\World.h" />
     <ClInclude Include="..\Main\pch.h" />
   </ItemGroup>

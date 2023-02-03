@@ -23,10 +23,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\libary\enet\enet.h">
+    <ClInclude Include="..\library\enet\enet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\libary\proton\stdafx.h">
+    <ClInclude Include="..\library\proton\stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Main\pch.h">
@@ -50,7 +50,7 @@
     <ClInclude Include="..\Class\Function.h">
       <Filter>Source Files\Class</Filter>
     </ClInclude>
-    <ClInclude Include="..\libary\proton\ProtonHeader.h">
+    <ClInclude Include="..\library\proton\ProtonHeader.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
