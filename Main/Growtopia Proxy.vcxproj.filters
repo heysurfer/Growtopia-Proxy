@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\Main\Main.cpp" />
+    <ClCompile Include="..\libary\enet\callbacks.c">
+      <Filter>Enet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libary\enet\compress.c">
+      <Filter>Enet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libary\enet\host.c">
+      <Filter>Enet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libary\enet\list.c">
+      <Filter>Enet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libary\enet\packet.c">
+      <Filter>Enet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libary\enet\peer.c">
+      <Filter>Enet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libary\enet\protocol.c">
+      <Filter>Enet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libary\enet\unix.c">
+      <Filter>Enet</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libary\enet\win32.c">
+      <Filter>Enet</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\libary\enet\include\callbacks.h">
+      <Filter>Enet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libary\enet\include\enet.h">
+      <Filter>Enet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libary\enet\include\list.h">
+      <Filter>Enet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libary\enet\include\protocol.h">
+      <Filter>Enet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libary\enet\include\time2.h">
+      <Filter>Enet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libary\enet\include\types.h">
+      <Filter>Enet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libary\enet\include\unix.h">
+      <Filter>Enet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libary\enet\include\utility.h">
+      <Filter>Enet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libary\enet\include\win32.h">
+      <Filter>Enet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Class\EnetManager.h">
+      <Filter>Class</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Class\HttpServer.h">
+      <Filter>Class</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Class\Information.h">
+      <Filter>Class</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Class\ServerHandle.h">
+      <Filter>Class</Filter>
+    </ClInclude>
+    <ClInclude Include="..\struct\World.h">
+      <Filter>Class</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libary\GrowtopiaHelper\GrowtopiaHelper.h">
+      <Filter>Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Main\pch.h">
+      <Filter>PreCompiled</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Enet">
+      <UniqueIdentifier>{7fffcd60-8d19-4424-a5d1-e3c779aedcb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Class">
+      <UniqueIdentifier>{1cf606aa-c769-4645-83c6-49cf998ed16d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Helper">
+      <UniqueIdentifier>{321c28f0-6a8c-40d7-9381-a555c3ed48b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PreCompiled">
+      <UniqueIdentifier>{eb89f538-0718-4e55-9aa7-31b4b030ad29}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
