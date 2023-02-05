@@ -28,9 +28,10 @@ public:
 		}
 		else if (type == getType::Local)
 		{
+
 			enet_address_set_host(&address, "0.0.0.0");
 			address.port = 17192;
-			host = enet_host_create(&address, 2, 10, 0, 0);
+			host = enet_host_create(&address, ENET_PROTOCOL_MAXIMUM_PEER_ID, 10, 0, 0);
 			BOOST_ASSERT_MSG(host != nullptr, "Host Its Null");
 	
 			host->usingNewPacket = false;
@@ -83,15 +84,12 @@ public:
 		for (currentPeer = host->peers; currentPeer < &host->peers[host->peerCount]; ++currentPeer) {
 			enet_peer_reset(currentPeer);
 		}
-		BOOST_ASSERT_MSG(host->peers != nullptr, "peer Its Null failed to destory peer");
-
-		enet_free(host->peers);
 	}
 	void disconnectPeer(getType type)
 	{
 		auto& peer = (type == getType::Growtopia) ? Growtopia_Peer : Local_Peer;
 		if(peer)
-			enet_peer_disconnect_later(peer, 0);
+			enet_peer_disconnect_now(peer, 0);
 	}
 	bool sendPacket(std::string packet, getType client,int type=2)
 	{
@@ -158,12 +156,12 @@ public:
 	{
 		auto& host = (client == getType::Growtopia) ? this->Growtopia_Host : this->Local_Host;
 		auto& peer = (client == getType::Growtopia) ? this->Growtopia_Peer : this->Local_Peer;
-	/*	if (!peer || !host)
+		if (!peer || !host)
 		{
 			Print("The packet could not be sent due to the peer or host its null. Type %s", (client == getType::Growtopia) ? "Growtopia" : "Local");
 			enet_packet_destroy(packet);
 			goto failed;
-		}*/
+		}
 		if (peer->state != ENET_PEER_STATE_CONNECTED)
 		{
 			Print("The packet could not be sent due to the peer state not connected.");

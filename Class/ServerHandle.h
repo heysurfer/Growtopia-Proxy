@@ -21,12 +21,13 @@ public:
 	bool blockPacket(ENetPacket* packet, getType type);
 	bool genericText(ENetPacket* packet, getType type);
 	bool gameMessage(ENetPacket* packet, getType type);
+	bool onDisconnect(ENetPacket* packet, getType type);
 
 	void init();
 private:
 	std::unordered_map<int, std::function<bool(ENetPacket*, getType) >> CallBack;
 	std::unordered_map<int, std::function<bool(ENetPacket*, getType) >> CallBack_NET;
-	std::unordered_map<std::string, std::function<void() >> Commands;
+	std::unordered_map<std::string, std::function<void(std::string) >> Commands;
 
 };
 std::string get_type_string(uint8_t type) {
@@ -49,6 +50,7 @@ std::string get_type_string(uint8_t type) {
 
 void serverHandle::init()
 {
+	CallBack[PACKET_DISCONNECT] = std::bind(&serverHandle::onDisconnect, this, std::placeholders::_1, std::placeholders::_2);
 	CallBack[PACKET_APP_INTEGRITY_FAIL] = std::bind(&serverHandle::blockPacket, this, std::placeholders::_1, std::placeholders::_2);
 	CallBack[PACKET_CALL_FUNCTION] = std::bind(&serverHandle::onCallFunction, this, std::placeholders::_1, std::placeholders::_2);
 	CallBack[PACKET_STATE] = std::bind(&serverHandle::onState, this, std::placeholders::_1, std::placeholders::_2);
@@ -58,6 +60,13 @@ void serverHandle::init()
 	CallBack_NET[NET_MESSAGE_GENERIC_TEXT] = std::bind(&serverHandle::genericText, this, std::placeholders::_1, std::placeholders::_2);
 	CallBack_NET[NET_MESSAGE_GAME_MESSAGE] = std::bind(&serverHandle::gameMessage, this, std::placeholders::_1, std::placeholders::_2);
 	CallBack_NET[NET_MESSAGE_TRACK] = std::bind(&serverHandle::onTrack, this, std::placeholders::_1, std::placeholders::_2);
+	Commands["test"] = [=](std::string Text){
+		m_Info->send_log("Detected 'Test' Command");
+	};
+	Commands["warp"] = [=](std::string Text) {
+		m_Info->ENetManager->sendPacket("action|join_request\nname|" + Text+"\ninvitedWorld|0", getType::Growtopia, NET_MESSAGE_GAME_MESSAGE);
+		m_Info->send_log("Warping to " + Text);
+	};
 }
 void serverHandle::local_handle()
 {
@@ -81,6 +90,7 @@ void serverHandle::local_handle()
 				_info.type = getType::Growtopia;
 				_info.type2 = m_Info->type2;
 				m_Info->ENetManager->connectPeer(_info);
+				enet_peer_timeout(m_Info->ENetManager->Local_Peer, ENET_PEER_TIMEOUT_LIMIT* 100, ENET_PEER_TIMEOUT_MINIMUM * 100, ENET_PEER_TIMEOUT_MAXIMUM * 100);
 				Print("Client Connected");
 			}break;
 			case ENET_EVENT_TYPE_DISCONNECT: {				
@@ -93,10 +103,15 @@ void serverHandle::local_handle()
 				if (event.packet->data) {
 					int packet_type = get_packet_type(event.packet);
 					if (packet_type == NET_MESSAGE_GAME_PACKET) {
-						if (utils::get_struct(event.packet)) {
-							Print("Received Packet From Client %s", get_type_string(utils::get_struct(event.packet)->m_type).c_str());
-							if (CallBack.contains(utils::get_struct(event.packet)->m_type))
-								if (CallBack[utils::get_struct(event.packet)->m_type](event.packet, getType::Local)) {
+						auto game_struct = utils::get_struct(event.packet);
+						if (game_struct) {
+							Print("Received Packet From Client %s", get_type_string(game_struct->m_type).c_str());
+							if (
+								CallBack.contains(game_struct->m_type)
+								&& 
+								CallBack[game_struct->m_type](event.packet, getType::Local)
+								)
+							   {
 									enet_packet_destroy(event.packet);
 									return;
 								}
@@ -105,11 +120,15 @@ void serverHandle::local_handle()
 					else
 					{
 						Print("Received Packet From Client %i", packet_type);
-						if (CallBack_NET.contains(packet_type))
-							if (CallBack_NET[packet_type](event.packet, getType::Local)) {
-								enet_packet_destroy(event.packet);
-								return;
-							}
+						if (
+							CallBack_NET.contains(packet_type)
+							&&
+							CallBack_NET[packet_type](event.packet, getType::Local)
+							)
+						{
+							enet_packet_destroy(event.packet);
+							return;
+						}
 					}
 
 					m_Info->ENetManager->sendPacket(event.packet, getType::Growtopia);
@@ -141,23 +160,33 @@ void serverHandle::server_handle()
 			case ENET_EVENT_TYPE_RECEIVE: {
 				int packet_type = get_packet_type(event.packet);
 				if (packet_type == NET_MESSAGE_GAME_PACKET) {
-					if (utils::get_struct(event.packet)) {
-						Print("Received Packet From Server %s", get_type_string(utils::get_struct(event.packet)->m_type).c_str());
-						if (CallBack.contains(utils::get_struct(event.packet)->m_type))
-							if (CallBack[utils::get_struct(event.packet)->m_type](event.packet, getType::Growtopia)) {
-								enet_packet_destroy(event.packet);
-								return;
-							}
-					}
-				}
-				else
-				{
-					Print("Received Packet From Server %i", packet_type);
-					if (CallBack_NET.contains(packet_type))
-						if (CallBack_NET[packet_type](event.packet, getType::Growtopia)) {
+					auto game_struct = utils::get_struct(event.packet);
+					if (game_struct) {
+						Print("Received Packet From Server %s", get_type_string(game_struct->m_type).c_str());
+						if (
+							CallBack.contains(game_struct->m_type)
+							&&
+							CallBack[game_struct->m_type](event.packet, getType::Growtopia)
+							)
+						{
 							enet_packet_destroy(event.packet);
 							return;
 						}
+					}
+				}
+
+				else
+				{
+					Print("Received Packet From Server %i", packet_type);
+					if (
+						CallBack_NET.contains(packet_type)
+						&&
+						CallBack_NET[packet_type](event.packet, getType::Growtopia)
+						)
+					{
+						enet_packet_destroy(event.packet);
+						return;
+					}
 				}
 				m_Info->ENetManager->sendPacket(event.packet, getType::Local);
 			
@@ -171,7 +200,7 @@ void serverHandle::poll()
 {
 	m_Info->threadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
 	local_handle();
-	boost::this_thread::sleep_for(boost::chrono::milliseconds(1));
+	std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	server_handle();
 }
 bool serverHandle::onSendParticleEffect(ENetPacket* packet, getType type) {
@@ -276,9 +305,9 @@ bool serverHandle::onCallFunction(ENetPacket* packet, getType type) {
 				auto data = utils::StringTokenize(varlist.get(4).get_string(), '|');
 				m_Info->currentPort = varlist.get(1).get_uint32();
 				m_Info->currentIp = data[0];
+				m_Info->LocalClient->userID = varlist.get(3).get_uint32();
 				if (varlist.get(2).get_uint32() != -1) {
-					m_Info->LocalClient->token = varlist.get(2).get_uint32() != -1;
-					m_Info->LocalClient->userID = varlist.get(3).get_uint32();
+					m_Info->LocalClient->token = varlist.get(2).get_uint32();
 					m_Info->LocalClient->doorID = data[1];
 					m_Info->LocalClient->UUID = data[2];
 				}
@@ -292,13 +321,11 @@ bool serverHandle::onCallFunction(ENetPacket* packet, getType type) {
 				varlist[1] = m_Info->defaultProxyPort;
 				m_Info->ENetManager->sendPacket(varlist);
 				return true;
-
 			}break;
 		}
 	}
 	else if (type == getType::Local)
 	{
-		variantlist_t varlist{};
 		varlist.serialize_from_mem(utils::get_extended(packet));
 		Print(varlist.print().c_str());
 	}
@@ -316,10 +343,8 @@ bool serverHandle::gameMessage(ENetPacket* packet, getType type)
 	{
 		if (packetStr == "action|quit")
 		{
-			m_Info->ENetManager->sendPacket(packet, getType::Growtopia);
 			m_Info->ENetManager->disconnectPeer(getType::Local);
-			m_Info->ENetManager->disconnectPeer(getType::Growtopia);
-			return true;
+			return false;
 		}
 	}
 	
@@ -328,7 +353,7 @@ bool serverHandle::gameMessage(ENetPacket* packet, getType type)
 bool serverHandle::genericText(ENetPacket* packet, getType type)
 {
 	auto packetStr = std::string{ utils::get_text(packet) };
-	Print("Generic text: %s\n", packetStr.c_str());
+	Print("Generic text: %s", packetStr.c_str());
 	rtvar var = rtvar::parse(packetStr);
 
 	if (type == getType::Growtopia)
@@ -353,6 +378,17 @@ bool serverHandle::genericText(ENetPacket* packet, getType type)
 			m_Info->ENetManager->sendPacket(var.serialize(), getType::Growtopia);
 			return true;
 		}
+		else if (var.get("action") == "input")
+		{
+			auto chatText =  (var.get(1).m_values.size()>0) ? var.get(1).m_values[1] : "Null";
+			chatText.erase(0, 1);
+			auto vec = utils::explode(" ", chatText);
+			if ( Commands.contains(vec[0]) )
+			{
+				Commands[vec[0]]( (vec.size()>1 ? vec[1] : ""));
+				return true;
+			}
+		}
 	}
 	return false;
 }
@@ -363,4 +399,12 @@ bool serverHandle::blockPacket(ENetPacket* packet, getType type)
 bool serverHandle::onTrack(ENetPacket* packet, getType type)
 {
 	return false;
+}
+bool serverHandle::onDisconnect(ENetPacket* packet, getType type)
+{
+	m_Info->ENetManager->disconnectPeer(getType::Growtopia);
+	m_Info->ENetManager->disconnectPeer(getType::Local);
+
+	return true;
+
 }

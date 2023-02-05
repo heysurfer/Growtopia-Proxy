@@ -33,10 +33,8 @@
 #include <sstream>
 #include <fstream>
 
-#include <boost/assert.hpp>
-#include <boost/chrono.hpp>
-#include <boost/thread/thread.hpp> 
-#include <boost/algorithm/string.hpp>
+#define BOOST_ASSERT_MSG(expr, msg) assert((expr)&&(msg))
+
 #include "..\library\enet\include\enet.h"
 #include "..\library\GrowtopiaHelper\GrowtopiaHelper.h"
 
@@ -56,6 +54,7 @@ typedef _ConnnectInformation ConnnectInformation;
 
 #include "..\library\httlib\httplib.h"
 #include "..\struct\World.h"
+#include "..\struct\Player.h"
 
 std::string FormatStr(const char* fmt, ...)
 {
@@ -75,7 +74,6 @@ void Print(const char* fmt, ...)
 	va_end(arg);
 	printf("%s\n", std::string(buf).c_str());
 }
-#include "..\Class\Function.h"/*Function For Proxy*/
 
 #include "..\Class\EnetManager.h" /*peer & host manager*/
 #include "..\Class\HttpServer.h" /*Local HTTP(S) Server*/

