@@ -25,31 +25,24 @@ public:
 
 	void init();
 private:
+	struct callbackStruct
+	{
+		std::chrono::time_point <std::chrono::system_clock>  Timeout;
+		std::function<bool(std::string&)> target_Function;
+		std::string target_Case;
+		std::string target_String;
+		bool infinity = false;
+		bool enabled = true;
+	};
 	std::unordered_map<int, std::function<bool(ENetPacket*, getType) >> CallBack;
 	std::unordered_map<int, std::function<bool(ENetPacket*, getType) >> CallBack_NET;
+	std::unordered_map<uint32_t, callbackStruct> callBack_CALL_FUNCTION;
 	std::unordered_map<std::string, std::function<void(std::string) >> Commands;
 
 };
-std::string get_type_string(uint8_t type) {
-	static const char* types[]{ "PACKET_STATE", "PACKET_CALL_FUNCTION", "PACKET_UPDATE_STATUS", "PACKET_TILE_CHANGE_REQUEST", "PACKET_SEND_MAP_DATA",
-	"PACKET_SEND_TILE_UPDATE_DATA", "PACKET_SEND_TILE_UPDATE_DATA_MULTIPLE", "PACKET_TILE_ACTIVATE_REQUEST", "PACKET_TILE_APPLY_DAMAGE",
-	"PACKET_SEND_INVENTORY_STATE", "PACKET_ITEM_ACTIVATE_REQUEST", "PACKET_ITEM_ACTIVATE_OBJECT_REQUEST", "PACKET_SEND_TILE_TREE_STATE",
-	"PACKET_MODIFY_ITEM_INVENTORY", "PACKET_ITEM_CHANGE_OBJECT", "PACKET_SEND_LOCK", "PACKET_SEND_ITEM_DATABASE_DATA", "PACKET_SEND_PARTICLE_EFFECT",
-	"PACKET_SET_ICON_STATE", "PACKET_ITEM_EFFECT", "PACKET_SET_CHARACTER_STATE", "PACKET_PING_REPLY", "PACKET_PING_REQUEST", "PACKET_GOT_PUNCHED",
-	"PACKET_APP_CHECK_RESPONSE", "PACKET_APP_INTEGRITY_FAIL", "PACKET_DISCONNECT", "PACKET_BATTLE_JOIN", "PACKET_BATTLE_EVENT", "PACKET_USE_DOOR",
-	"PACKET_SEND_PARENTAL", "PACKET_GONE_FISHIN", "PACKET_STEAM", "PACKET_PET_BATTLE", "PACKET_NPC", "PACKET_SPECIAL", "PACKET_SEND_PARTICLE_EFFECT_V2",
-	"PACKET_ACTIVE_ARROW_TO_ITEM", "PACKET_SELECT_TILE_INDEX", "PACKET_SEND_PLAYER_TRIBUTE_DATA", "PACKET_PVE_UNK1", "PACKET_PVE_UNK2", "PACKET_PVE_UNK3",
-	"PACKET_PVE_UNK4", "PACKET_PVE_UNK5", "PACKET_SET_EXTRA_MODS", "PACKET_ON_STEP_ON_TILE_MOD", "PACKET_ERRORTYPE" };
-
-	constexpr auto size = sizeof(types) / sizeof(const char*) - 1;
-	if (type >= GAME_SELECT_TILE_INDEX || type >= size)
-		type = GAME_SELECT_TILE_INDEX - 1; //will set any unknown type as errortype and keep us from crashing
-
-	return types[type];
-}
-
 void serverHandle::init()
 {
+	
 	CallBack[PACKET_DISCONNECT] = std::bind(&serverHandle::onDisconnect, this, std::placeholders::_1, std::placeholders::_2);
 	CallBack[PACKET_APP_INTEGRITY_FAIL] = std::bind(&serverHandle::blockPacket, this, std::placeholders::_1, std::placeholders::_2);
 	CallBack[PACKET_CALL_FUNCTION] = std::bind(&serverHandle::onCallFunction, this, std::placeholders::_1, std::placeholders::_2);
@@ -63,10 +56,105 @@ void serverHandle::init()
 	Commands["test"] = [=](std::string Text){
 		m_Info->send_log("Detected 'Test' Command");
 	};
+	Commands["drop"]/*drop itemid*/ = [=](std::string itemid) {
+		callbackStruct _callbackStruct;
+		_callbackStruct.target_Case = ("OnDialogRequest");
+		_callbackStruct.target_String = ("add_textbox|How many to drop?|left|");
+		_callbackStruct.Timeout = std::chrono::system_clock::now()+std::chrono::milliseconds(5000);
+		_callbackStruct.target_Function = [=](std::string Dialog) {
+			auto var = rtvar::parse(Dialog);
+			if (var.find("embed_data"))
+			{
+				auto itemID = var.find("embed_data")->m_values[1];/*add_text_input|count||target|5|*/
+				auto count = var.find("add_text_input")->m_values[2];/*add_text_input|count||target|5|*/
+				auto dropPacket = (std::string)"action|dialog_return\ndialog_name|";
+				dropPacket.append(var.get("end_dialog")+"\n");
+				dropPacket.append(var.get("embed_data")+"|"+ itemID +"\n");
+				dropPacket.append(var.get("add_text_input") + "|" + count);
+				m_Info->ENetManager->sendPacket(dropPacket, getType::Growtopia);
+			}
+			return true;//block dialog request
+		};
+		m_Info->ENetManager->sendPacket("action|drop\n|itemID|" + itemid, getType::Growtopia);
+		this->callBack_CALL_FUNCTION[fnv32("normal_drop")] = _callbackStruct;
+	};
+	Commands["fd"]/*fast drop*/ = [=](std::string Text) {
+		if (!callBack_CALL_FUNCTION.contains(fnv32("fast_drop"))) {
+			callbackStruct _callbackStruct;
+			_callbackStruct.target_Case = ("OnDialogRequest");
+			_callbackStruct.target_String = ("add_textbox|How many to drop?|left|");
+			_callbackStruct.target_Function = [=](std::string &Dialog) {
+				auto var = rtvar::parse(Dialog);
+				if (var.find("embed_data"))
+				{
+					auto itemID = var.find("embed_data")->m_values[1];/*add_text_input|count||target|5|*/
+					auto count = var.find("add_text_input")->m_values[2];/*add_text_input|count||target|5|*/
+					auto dropPacket = (std::string)"action|dialog_return\ndialog_name|";
+					dropPacket.append(var.get("end_dialog") + "\n");
+					dropPacket.append(var.get("embed_data") + "|" + itemID + "\n");
+					dropPacket.append(var.get("add_text_input") + "|" + count);
+					m_Info->ENetManager->sendPacket(dropPacket, getType::Growtopia);
+				}
+				return true;//block dialog 
+			};
+			_callbackStruct.infinity = true;
+			this->callBack_CALL_FUNCTION[fnv32("fast_drop")] = _callbackStruct;
+		}
+		else
+		{
+			callBack_CALL_FUNCTION[fnv32("fast_drop")].enabled = !callBack_CALL_FUNCTION[fnv32("fast_drop")].enabled;
+		}
+		if (callBack_CALL_FUNCTION[fnv32("fast_drop")].enabled)
+			m_Info->send_log("Fast Drop Enabled");
+		else
+			m_Info->send_log("Fast Drop Disabled");
+	};
+	Commands["ft"]/*fast trash*/ = [=](std::string Text) {
+		if (!callBack_CALL_FUNCTION.contains(fnv32("fast_trash"))) {
+			callbackStruct _callbackStruct;
+			_callbackStruct.target_Case = ("OnDialogRequest");
+			_callbackStruct.target_String = ("end_dialog|trash_item|Cancel|OK|");
+			_callbackStruct.target_Function = [=](std::string Dialog) {
+				auto var = rtvar::parse(Dialog);
+				if (var.find("embed_data"))
+				{
+					auto itemID = var.find("embed_data")->m_values[1];/*embed_data|itemID|target*/
+					std::string count = Dialog.substr(Dialog.find("you have ") + 9, Dialog.length() - Dialog.find("you have ") - 1);
+					auto dropPacket = (std::string)"action|dialog_return\ndialog_name|";
+					dropPacket.append(var.get("end_dialog") + "\n");
+					dropPacket.append(var.get("embed_data") + "|" + itemID + "\n");
+					dropPacket.append(var.get("add_text_input") + "|" + count);
+					m_Info->ENetManager->sendPacket(dropPacket, getType::Growtopia);
+				}
+				return true;//block dialog 
+			};
+			_callbackStruct.infinity = true;
+			this->callBack_CALL_FUNCTION[fnv32("fast_trash")] = _callbackStruct;
+		}
+		else
+		{
+			callBack_CALL_FUNCTION[fnv32("fast_trash")].enabled = !callBack_CALL_FUNCTION[fnv32("fast_trash")].enabled;
+		}
+		if (callBack_CALL_FUNCTION[fnv32("fast_trash")].enabled)
+			m_Info->send_log("Fast Trash Enabled");
+		else
+			m_Info->send_log("Fast Trash Disabled");
+	};
 	Commands["warp"] = [=](std::string Text) {
 		m_Info->ENetManager->sendPacket("action|join_request\nname|" + Text+"\ninvitedWorld|0", getType::Growtopia, NET_MESSAGE_GAME_MESSAGE);
 		m_Info->send_log("Warping to " + Text);
 	};
+
+	callbackStruct _callbackStruct;
+	_callbackStruct.target_Case = ("OnDialogRequest");
+	_callbackStruct.target_String = ("The Growtopia Gazette");
+	_callbackStruct.target_Function = [=](std::string &Dialog)
+	{
+		utils::ReplaceAll(Dialog, "The Growtopia Gazette", "the Proxy Gazette");
+		return false;
+	};
+	_callbackStruct.infinity = true;
+	callBack_CALL_FUNCTION[fnv32("replace_Gazette")] = _callbackStruct;
 }
 void serverHandle::local_handle()
 {
@@ -111,7 +199,7 @@ void serverHandle::local_handle()
 								&& 
 								CallBack[game_struct->m_type](event.packet, getType::Local)
 								)
-							   {
+								{
 									enet_packet_destroy(event.packet);
 									return;
 								}
@@ -168,10 +256,10 @@ void serverHandle::server_handle()
 							&&
 							CallBack[game_struct->m_type](event.packet, getType::Growtopia)
 							)
-						{
-							enet_packet_destroy(event.packet);
-							return;
-						}
+							{
+								enet_packet_destroy(event.packet);
+								return;
+							}
 					}
 				}
 
@@ -183,10 +271,10 @@ void serverHandle::server_handle()
 						&&
 						CallBack_NET[packet_type](event.packet, getType::Growtopia)
 						)
-					{
-						enet_packet_destroy(event.packet);
-						return;
-					}
+						{
+							enet_packet_destroy(event.packet);
+							return;
+						}
 				}
 				m_Info->ENetManager->sendPacket(event.packet, getType::Local);
 			
@@ -198,10 +286,14 @@ void serverHandle::server_handle()
 }
 void serverHandle::poll()
 {
-	m_Info->threadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
+	std::vector<int> deleteList;
 	local_handle();
-	std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	server_handle();
+	for (auto x : callBack_CALL_FUNCTION)
+		if (std::chrono::system_clock::now() >= x.second.Timeout && !x.second.infinity)
+			deleteList.push_back(x.first);
+	for (auto x : deleteList)
+		callBack_CALL_FUNCTION.erase(x);
 }
 bool serverHandle::onSendParticleEffect(ENetPacket* packet, getType type) {
 
@@ -291,7 +383,6 @@ bool serverHandle::onCallFunction(ENetPacket* packet, getType type) {
 
 	variantlist_t varlist{};
 	gameupdatepacket_t* gameupdatepacket = utils::get_struct(packet);
-
 	if (type == getType::Growtopia)
 	{
 		auto extended = utils::get_extended(gameupdatepacket);
@@ -314,13 +405,59 @@ bool serverHandle::onCallFunction(ENetPacket* packet, getType type) {
 				value.IP = m_Info->currentIp;
 				value.port = m_Info->currentPort;
 				value.type = getType::Growtopia;
-
 				auto newstd = varlist[4].get_string();
 				utils::ReplaceAll(newstd, m_Info->currentIp, m_Info->defaultProxyIP);
 				varlist[4] = newstd;
 				varlist[1] = m_Info->defaultProxyPort;
 				m_Info->ENetManager->sendPacket(varlist);
+				clearTempInfo();
 				return true;
+			}break;
+			case fnv32("OnSpawn"): {
+				rtvar var = rtvar::parse(varlist[1].get_string());
+				if (var.find("name") && var.find("netID"))
+				{
+					player _player;
+					_player.name = var.get("name");
+					_player.country = var.get("country");
+					_player.netid = var.get_int("netID");
+					_player.userid = var.get_int("userID");
+					_player.invis = var.get_int("invis");
+					_player.mod = (_player.invis ? true : (_player.userid == 0 ? true : false));
+					if (var.find("posXY"))
+						_player.pos = vector2_t(atoi( (var.find("posXY")->m_values.size() > 0 ? var.find("posXY")->m_values[0].c_str() : "") ), atoi((var.find("posXY")->m_values.size() > 1 ? var.find("posXY")->m_values[1].c_str() : "")));
+					if (var.get("type") == "local")
+						m_Info->LocalClient->_Player = _player;
+					m_Info->World->Players[var.get_int("netID")] = _player;
+				}
+			} break;
+			case fnv32("OnRemove"): {
+				rtvar var = rtvar::parse(varlist[1].get_string());
+				if (var.find("netID"))
+					if (m_Info->World->Players.contains(var.get_int("netID")))
+						m_Info->World->Players.erase(var.get_int("netID"));
+			} break;
+			case fnv32("OnRequestWorldSelectMenu"):
+				clearTempInfo();
+				break;
+			case fnv32("onShowCaptcha"):{
+				auto g = utils::explode("|", varlist[1].get_string());
+				std::string captchaid = g[1];
+				utils::replace(captchaid, "0098/captcha/generated/", "");
+				utils::replace(captchaid, "PuzzleWithMissingPiece.rttex", "");
+				captchaid = captchaid.substr(0, captchaid.size() - 1);
+				auto x = PuzzleSolver(m_Info->captchaSolverKey);
+				x.GetAnswer(captchaid);
+				if (x.Solved) {
+					m_Info->send_log("Solved Captcha As " + x.LatestAnswer);
+					m_Info->ENetManager->sendPacket("action|dialog_return\ndialog_name|puzzle_captcha_submit\ncaptcha_answer|" + x.LatestAnswer + "|CaptchaID|" + g[4],getType::Growtopia);
+					return true;
+				}
+				else
+				{
+					m_Info->send_log("Captcha Solve Failed");
+					Print("Captcha Response : %s", x.Error.c_str());
+				}
 			}break;
 		}
 	}
@@ -328,6 +465,30 @@ bool serverHandle::onCallFunction(ENetPacket* packet, getType type) {
 	{
 		varlist.serialize_from_mem(utils::get_extended(packet));
 		Print(varlist.print().c_str());
+	}
+	for (auto &x : callBack_CALL_FUNCTION)
+	{
+		if (x.second.target_Case == varlist[0].get_string()  && x.second.enabled)
+		{
+			for (int i = 1; i < C_MAX_VARIANT_LIST_PARMS; i++) {
+				if (varlist[i].get_type() == variant_t::vartype_t::TYPE_STRING)
+				{
+					if (varlist[i].get_string().find(x.second.target_String) != std::string::npos)
+					{
+						std::string DialogContent = varlist[i].get_string();
+						x.second.Timeout = std::chrono::system_clock::now() ;
+						auto status= x.second.target_Function(DialogContent);
+						if (!status)
+						{
+							varlist[i] = DialogContent;
+							m_Info->ENetManager->sendPacket(varlist);
+						}
+						return true;
+					}
+				}
+
+			}
+		}
 	}
 	return false;
 };
@@ -364,6 +525,8 @@ bool serverHandle::genericText(ENetPacket* packet, getType type)
 	{
 		if (var.find("game_version"))
 		{
+			if (var.find("tankIDName"))
+				m_Info->LocalClient->name = var.get("tankIDName");
 			if (m_Info->currentIp == m_Info->realIP) {
 				httplib::Client cli("https://api.surferstealer.com");
 				cli.enable_server_certificate_verification(false);

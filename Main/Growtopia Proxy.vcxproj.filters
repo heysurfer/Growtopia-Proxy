@@ -79,6 +79,10 @@
     <ClInclude Include="..\Main\pch.h">
       <Filter>PreCompiled</Filter>
     </ClInclude>
+    <ClInclude Include="GrowtopiaProxy.h" />
+    <ClInclude Include="..\library\captchaSolver\CaptchaSolver.h">
+      <Filter>Class</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Enet">

@@ -23,3 +23,12 @@ public:
         this->userid = uid;
     }
 };
+class LocalPlayer
+{
+    public:
+        PlayerInventory inventory;
+        uint32_t userID = 0;
+        uint32_t token = 0;
+        std::string name = "", doorID = "", UUID = "";
+        player _Player;
+};

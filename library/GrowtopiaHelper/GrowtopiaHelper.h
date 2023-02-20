@@ -1318,17 +1318,4 @@ struct PlayerInventory {
     }
     std::unordered_map<uint32_t, Item> items;
 };
-struct LocalPlayer
-{
-    PlayerInventory inventory;
-    uint32_t userID = 0;
-    uint32_t netID = 0;
-    uint32_t token = 0;
-    std::string name = "", doorID="", UUID="";
-    vector2_t pos;
-    vector2_t RealPos() {
-        return vector2_t(this->pos.m_x / 32, this->pos.m_y / 32);
-    }
-};
-
 #endif

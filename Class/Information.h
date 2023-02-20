@@ -49,24 +49,6 @@ public:
 		}
 
 	}
-	void lockThread()
-	{
-		if (threadID != std::hash<std::thread::id>{}(std::this_thread::get_id())) {
-			if (mutexStatus.load()) {
-				mutexStatus.store(false);
-				this->cv.notify_all();
-			}
-		}
-	}
-	void unlockThread()
-	{
-		if (threadID != std::hash<std::thread::id>{}(std::this_thread::get_id())) {
-			if (!mutexStatus.load()) {
-				mutexStatus.store(true);
-				this->cv.notify_all();
-			}
-		}
-	}
 	void send_log(std::string text)
 	{
 		this->ENetManager->sendPacket("action|log\nmsg|" + text, getType::Local, NET_MESSAGE_GAME_MESSAGE);
@@ -97,15 +79,12 @@ public:
 	uint32_t defaultProxyPort = 17192;
 	uint32_t threadID;
 	std::string realIP;
+	std::string captchaSolverKey;
 	int realPort;
 	int type2;
 	std::string currentIp = "213.179.209.168";
 	int currentPort = 17197;
 private:
-
-	std::mutex mutex;
-	std::atomic<bool> mutexStatus;
-	std::condition_variable cv;
 };
 
 

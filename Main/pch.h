@@ -38,6 +38,8 @@
 #include "..\library\enet\include\enet.h"
 #include "..\library\GrowtopiaHelper\GrowtopiaHelper.h"
 
+#include "..\struct\Player.h"
+
 enum getType
 {
 	Local = 0,
@@ -54,7 +56,6 @@ typedef _ConnnectInformation ConnnectInformation;
 
 #include "..\library\httlib\httplib.h"
 #include "..\struct\World.h"
-#include "..\struct\Player.h"
 
 std::string FormatStr(const char* fmt, ...)
 {
@@ -77,10 +78,17 @@ void Print(const char* fmt, ...)
 
 #include "..\Class\EnetManager.h" /*peer & host manager*/
 #include "..\Class\HttpServer.h" /*Local HTTP(S) Server*/
+#include "..\library\captchaSolver\CaptchaSolver.h"
 
 #include  "..\Class\Information.h"
 info* m_Info = new info();
+
+#include "GrowtopiaProxy.h"/*Functions*/
+
+
 #include "..\Class\ServerHandle.h"/*Handle Server*/
+
+
 serverHandle* serverHandler = new serverHandle();
 
 #endif

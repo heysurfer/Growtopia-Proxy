@@ -35,6 +35,7 @@
     <ClInclude Include="..\Class\HttpServer.h" />
     <ClInclude Include="..\Class\Information.h" />
     <ClInclude Include="..\Class\ServerHandle.h" />
+    <ClInclude Include="..\library\captchaSolver\CaptchaSolver.h" />
     <ClInclude Include="..\library\enet\include\callbacks.h" />
     <ClInclude Include="..\library\enet\include\enet.h" />
     <ClInclude Include="..\library\enet\include\list.h" />
@@ -47,6 +48,7 @@
     <ClInclude Include="..\library\GrowtopiaHelper\GrowtopiaHelper.h" />
     <ClInclude Include="..\struct\World.h" />
     <ClInclude Include="..\Main\pch.h" />
+    <ClInclude Include="GrowtopiaProxy.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -153,6 +155,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

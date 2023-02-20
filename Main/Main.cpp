@@ -6,6 +6,7 @@
 
 int main()
 {
+	m_Info->captchaSolverKey = "";//secret code, you can buy at  https://surferwallet.net/SurferShop
 	m_Info->init();
 	while (true)
 	{
