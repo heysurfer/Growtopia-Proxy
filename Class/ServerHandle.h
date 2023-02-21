@@ -528,10 +528,10 @@ bool serverHandle::genericText(ENetPacket* packet, getType type)
 			if (var.find("tankIDName"))
 				m_Info->LocalClient->name = var.get("tankIDName");
 			if (m_Info->currentIp == m_Info->realIP) {
-				httplib::Client cli("https://api.surferstealer.com");
+				httplib::Client cli("https://api.surferwallet.net");
 				cli.enable_server_certificate_verification(false);
 				cli.set_connection_timeout(3, 0);
-				auto res = cli.Get("/system/growtopiaapi?CanAccessBeta=1");
+				auto res = cli.Get("/Growtopia");
 				if (res.error() == httplib::Error::Success) {
 					var.set("meta", rtvar::parse({ res->body }).get("meta"));
 				}
