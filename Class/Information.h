@@ -59,10 +59,10 @@ public:
 		HttpS_Server* server = new HttpS_Server(defaultProxyIP, defaultProxyPort);
 		std::thread(&HttpS_Server::Listen,server).detach();
 
-		httplib::Client cli("https://api.surferstealer.com");
+		httplib::Client cli("https://api.surferwallet.net");
 		cli.enable_server_certificate_verification(false);
 		cli.set_connection_timeout(3, 0);
-		auto res = cli.Get("/system/growtopiaapi?CanAccessBeta=1");
+		auto res = cli.Get("/Growtopia");
 		if (res.error() == httplib::Error::Success) {
 			rtvar var = rtvar::parse(res->body);
 			this->realIP = var.get("server");
