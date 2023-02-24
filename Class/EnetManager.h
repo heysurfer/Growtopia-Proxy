@@ -20,7 +20,7 @@ public:
 		if (type == getType::Growtopia)
 		{
 			host = enet_host_create(0, 2, 2, 0, 0);
-			BOOST_ASSERT_MSG(host != nullptr, "Host Its Null");
+			BOOST_ASSERT_MSG(host != nullptr, "Host is Null");
 			host->usingNewPacket = true;
 			host->checksum = enet_crc32;
 			auto code = enet_host_compress_with_range_coder(host);
@@ -32,7 +32,7 @@ public:
 			enet_address_set_host(&address, "0.0.0.0");
 			address.port = 17192;
 			host = enet_host_create(&address, ENET_PROTOCOL_MAXIMUM_PEER_ID, 10, 0, 0);
-			BOOST_ASSERT_MSG(host != nullptr, "Host Its Null");
+			BOOST_ASSERT_MSG(host != nullptr, "Host is Null");
 	
 			host->usingNewPacket = false;
 			host->checksum = enet_crc32;
@@ -55,7 +55,7 @@ public:
 		auto& host = (information.type == getType::Growtopia) ? Growtopia_Host : Local_Host;
 		auto& peer = (information.type == getType::Growtopia) ? Growtopia_Peer : Local_Peer;
 		ENetAddress address;
-		BOOST_ASSERT_MSG(host != nullptr , "Host Its Null");
+		BOOST_ASSERT_MSG(host != nullptr , "Host is Null");
 
 		if (information.type == getType::Growtopia)
 		{
@@ -79,7 +79,7 @@ public:
 	{
 		auto& host = (type == getType::Growtopia) ? Growtopia_Host : Local_Host;
 		auto& peer = (type == getType::Growtopia) ? Growtopia_Peer : Local_Peer;
-		BOOST_ASSERT_MSG(host != nullptr, "Host Its Null failed to destory peer");
+		BOOST_ASSERT_MSG(host != nullptr, "Host is Null failed to destory peer");
 		ENetPeer* currentPeer;
 		for (currentPeer = host->peers; currentPeer < &host->peers[host->peerCount]; ++currentPeer) {
 			enet_peer_reset(currentPeer);
@@ -158,7 +158,7 @@ public:
 		auto& peer = (client == getType::Growtopia) ? this->Growtopia_Peer : this->Local_Peer;
 		if (!peer || !host)
 		{
-			Print("The packet could not be sent due to the peer or host its null. Type %s", (client == getType::Growtopia) ? "Growtopia" : "Local");
+			Print("The packet could not be sent due to the peer or host is null. Type %s", (client == getType::Growtopia) ? "Growtopia" : "Local");
 			enet_packet_destroy(packet);
 			goto failed;
 		}

@@ -1,11 +1,20 @@
 #pragma once
 #ifndef PCH_CLASS
 #define PCH_CLASS
-#define WIN32_LEAN_AND_MEAN
 #define _CRT_SECURE_NO_WARNINGS
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 #include <string>
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <tchar.h>
+#include <excpt.h>
+#include <filesystem>
+#else
+#include <cstdint>
+#include <stdint.h>
+#include <experimental/filesystem>
+#endif
 #include <iostream>
 #include <vector>
 #include <unordered_map>
@@ -27,18 +36,27 @@
 #include <stack>
 #include <thread>
 #include <set>
-#include <tchar.h>
-#include <excpt.h>
-#include <filesystem>
+
 #include <sstream>
 #include <fstream>
 
 #define BOOST_ASSERT_MSG(expr, msg) assert((expr)&&(msg))
 
-#include "..\library\enet\include\enet.h"
-#include "..\library\GrowtopiaHelper\GrowtopiaHelper.h"
+#ifndef _WIN32
+#include "../library/enet/callbacks.c"
+#include "../library/enet/compress.c"
+#include "../library/enet/host.c"
+#include "../library/enet/list.c"
+#include "../library/enet/packet.c"
+#include "../library/enet/peer.c"
+#include "../library/enet/protocol.c"
+#include "../library/enet/unix.c"
+#endif
 
-#include "..\struct\Player.h"
+#include "../library/enet/include/enet.h"
+#include "../library/GrowtopiaHelper/GrowtopiaHelper.h"
+
+#include "../struct/Player.h"
 
 enum getType
 {
@@ -54,8 +72,8 @@ struct _ConnnectInformation
 };
 typedef _ConnnectInformation ConnnectInformation;
 
-#include "..\library\httlib\httplib.h"
-#include "..\struct\World.h"
+#include "../library/httplib/httplib.h"
+#include "../struct/World.h"
 
 std::string FormatStr(const char* fmt, ...)
 {
@@ -75,20 +93,14 @@ void Print(const char* fmt, ...)
 	va_end(arg);
 	printf("%s\n", std::string(buf).c_str());
 }
+#include "../Class/EnetManager.h" /*peer & host manager*/
+#include "../Class/HttpServer.h" /*Local HTTP(S) Server*/
+#include "../library/captchaSolver/CaptchaSolver.h"
 
-#include "..\Class\EnetManager.h" /*peer & host manager*/
-#include "..\Class\HttpServer.h" /*Local HTTP(S) Server*/
-#include "..\library\captchaSolver\CaptchaSolver.h"
-
-#include  "..\Class\Information.h"
+#include  "../Class/Information.h"
 info* m_Info = new info();
-
 #include "GrowtopiaProxy.h"/*Functions*/
-
-
-#include "..\Class\ServerHandle.h"/*Handle Server*/
-
-
+#include "../Class/ServerHandle.h"/*Handle Server*/
 serverHandle* serverHandler = new serverHandle();
 
 #endif

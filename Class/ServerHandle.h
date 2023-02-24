@@ -120,11 +120,11 @@ void serverHandle::init()
 				{
 					auto itemID = var.find("embed_data")->m_values[1];/*embed_data|itemID|target*/
 					std::string count = Dialog.substr(Dialog.find("you have ") + 9, Dialog.length() - Dialog.find("you have ") - 1);
-					auto dropPacket = (std::string)"action|dialog_return\ndialog_name|";
-					dropPacket.append(var.get("end_dialog") + "\n");
-					dropPacket.append(var.get("embed_data") + "|" + itemID + "\n");
-					dropPacket.append(var.get("add_text_input") + "|" + count);
-					m_Info->ENetManager->sendPacket(dropPacket, getType::Growtopia);
+					auto trashPacket = (std::string)"action|dialog_return\ndialog_name|";
+					trashPacket.append(var.get("end_dialog") + "\n");
+					trashPacket.append(var.get("embed_data") + "|" + itemID + "\n");
+					trashPacket.append(var.get("add_text_input") + "|" + count);
+					m_Info->ENetManager->sendPacket(trashPacket, getType::Growtopia);
 				}
 				return true;//block dialog 
 			};
@@ -160,7 +160,7 @@ void serverHandle::local_handle()
 {
 	if (!m_Info->getHost(getType::Local))
 	{
-		Print("Host Its Null Type %s,creating new host","Local");
+		Print("Host is  Null Type %s,creating new host","Local");
 		m_Info->ENetManager->createHost(getType::Local);
 
 	}
@@ -231,7 +231,7 @@ void serverHandle::server_handle()
 {
 	if (!m_Info->getHost(getType::Growtopia))
 	{
-		Print("Host Its Null Type %s,creating new host", "Growtopia");
+		Print("Host is Null Type %s,creating new host", "Growtopia");
 		m_Info->ENetManager->createHost(getType::Growtopia);
 	}
 	else {
@@ -385,7 +385,7 @@ bool serverHandle::onCallFunction(ENetPacket* packet, getType type) {
 	gameupdatepacket_t* gameupdatepacket = utils::get_struct(packet);
 	if (type == getType::Growtopia)
 	{
-		auto extended = utils::get_extended(gameupdatepacket);
+		auto extended = reinterpret_cast<uint8_t*>(&gameupdatepacket->m_data_size);
 		extended += 4;
 		varlist.serialize_from_mem(extended);
 		Print(varlist.print().c_str() );
@@ -463,7 +463,7 @@ bool serverHandle::onCallFunction(ENetPacket* packet, getType type) {
 	}
 	else if (type == getType::Local)
 	{
-		varlist.serialize_from_mem(utils::get_extended(packet));
+		varlist.serialize_from_mem(reinterpret_cast<uint8_t*>(&gameupdatepacket->m_data_size));
 		Print(varlist.print().c_str());
 	}
 	for (auto &x : callBack_CALL_FUNCTION)
@@ -477,8 +477,7 @@ bool serverHandle::onCallFunction(ENetPacket* packet, getType type) {
 					{
 						std::string DialogContent = varlist[i].get_string();
 						x.second.Timeout = std::chrono::system_clock::now() ;
-						auto status= x.second.target_Function(DialogContent);
-						if (!status)
+						if (!x.second.target_Function(DialogContent))
 						{
 							varlist[i] = DialogContent;
 							m_Info->ENetManager->sendPacket(varlist);
@@ -528,10 +527,10 @@ bool serverHandle::genericText(ENetPacket* packet, getType type)
 			if (var.find("tankIDName"))
 				m_Info->LocalClient->name = var.get("tankIDName");
 			if (m_Info->currentIp == m_Info->realIP) {
-				httplib::Client cli("https://api.surferstealer.com");
+				httplib::Client cli("https://api.surferwallet.net");
 				cli.enable_server_certificate_verification(false);
 				cli.set_connection_timeout(3, 0);
-				auto res = cli.Get("/system/growtopiaapi?CanAccessBeta=1");
+				auto res = cli.Get("/Growtopia");
 				if (res.error() == httplib::Error::Success) {
 					var.set("meta", rtvar::parse({ res->body }).get("meta"));
 				}

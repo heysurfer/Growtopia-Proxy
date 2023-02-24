@@ -2,22 +2,24 @@
 #define GrowtopiaHelper_CLASS
 #ifdef _WIN32
 #pragma warning(disable : 4307)
+
 #define INLINE __forceinline
 #else //for gcc/clang
-#define INLINE __attribute__((always_inline))
+
+#define INLINE inline
 #endif
-#include <cmath>
-#include <initializer_list>
+
 #include <stdio.h>
 #include <stdint.h>
-#include <cstring>
-#include <string>
+#include <string.h>
 #include <sstream>
 #include <algorithm>
+#include <fstream> 
+#include <iostream>
 #include <vector>
 #include <chrono>
 #include <cmath>
-#include "..\..\library\enet\include\enet.h"
+#include "../../library/enet/include/enet.h"
 #include <random>
 
 #define HashCoord(x, y) (((y) * 100) + (x))
@@ -299,45 +301,15 @@ enum {
     NET_MESSAGE_CLIENT_LOG_RESPONSE,
 };
 namespace utils {
-    char* get_text(ENetPacket* packet);
-    GameUpdatePacket* get_structs(ENetPacket* packet);
-    gameupdatepacket_t* get_struct(ENetPacket* packet);
-    int random(int min, int max, std::mt19937* value = nullptr);
-    std::string generate_rid();
-    std::string random_color();
-    uint32_t hash(uint8_t* str, uint32_t len);
-    std::string generate_mac(const std::string& prefix = "02");
-    std::string hex_str(unsigned char data);
-    std::string random(uint32_t length);
-    INLINE uint8_t* get_extended(gameupdatepacket_t* packet) {
-        return reinterpret_cast<uint8_t*>(&packet->m_data_size);
-    }
-    INLINE uint8_t* get_extended(GameUpdatePacket* packet) {
-        return reinterpret_cast<uint8_t*>(&packet->data_size);
-    }
-    INLINE uint8_t* get_extended(ENetPacket* packet) {
-        return reinterpret_cast<uint8_t*>(&packet->dataLength);
-    }
-    INLINE uint8_t get_extendedPoint(GameUpdatePacket* packet) {
-        return reinterpret_cast<uint8_t>(&packet->data_size);
-    }
-    bool replace(std::string& str, const std::string& from, const std::string& to);
     void ReplaceAll(std::string& str, const std::string& from, const std::string& to);
-    std::vector<std::string> explode(const std::string& delimiter, const std::string& str);
-    void DeleteWhiteSpice(std::string& str);
-    void DeleteNewLine(std::string& str);
-    void getplayername(std::string& str);
     bool is_number(const std::string& s);
-    int ExtractINT(std::string value);
-    std::string getTemp();
-    bool writeFile(std::string Location, std::string Content);
-    std::string readFile(std::string Location);
-    INLINE char* utils::get_text(ENetPacket* packet) {
+    std::string hex_str(unsigned char data);
+    INLINE char* get_text(ENetPacket* packet) {
         gametankpacket_t* tank = reinterpret_cast<gametankpacket_t*>(packet->data);
         memset(packet->data + packet->dataLength - 1, 0, 1);
         return static_cast<char*>(&tank->m_data);
     }
-    INLINE GameUpdatePacket* utils::get_structs(ENetPacket* packet) {
+    INLINE GameUpdatePacket* get_structs(ENetPacket* packet) {
         if (packet->dataLength < sizeof(GameUpdatePacket) - 4)
             return nullptr;
         GameUpdatePacket* tank = reinterpret_cast<GameUpdatePacket*>(packet->data);
@@ -355,7 +327,7 @@ namespace utils {
 
         return gamepacket;
     }
-    INLINE gameupdatepacket_t* utils::get_struct(ENetPacket* packet) {
+    INLINE gameupdatepacket_t* get_struct(ENetPacket* packet) {
         if (packet->dataLength > sizeof(gameupdatepacket_t) - 4) {
             gametankpacket_t* tank = reinterpret_cast<gametankpacket_t*>(packet->data);
             gameupdatepacket_t* gamepacket = reinterpret_cast<gameupdatepacket_t*>(packet->data + 4);
@@ -369,7 +341,7 @@ namespace utils {
         }
         return nullptr;
     }
-    INLINE std::string utils::random_color()
+    INLINE std::string random_color()
     {
 
         srand((unsigned int)std::chrono::high_resolution_clock::now().time_since_epoch().count());
@@ -388,7 +360,7 @@ namespace utils {
         std::generate_n(str.begin(), length, randchar);
         return str;
     }
-    INLINE int utils::random(int min, int max, std::mt19937* value) {
+    INLINE int random(int min, int max, std::mt19937* value= nullptr) {
         if (value == nullptr) {
             std::mt19937 rng;
             rng.seed((unsigned int)std::chrono::high_resolution_clock::now().time_since_epoch().count());
@@ -402,17 +374,17 @@ namespace utils {
         }
 
     }
-    INLINE std::string utils::generate_rid() {
+    INLINE std::string generate_rid() {
         std::string rid_str;
 
         for (int i = 0; i < 16; i++)
-            rid_str += utils::hex_str(utils::random(0, 255));
+            rid_str += utils::hex_str(random(0, 255));
 
         std::transform(rid_str.begin(), rid_str.end(), rid_str.begin(), ::toupper);
 
         return rid_str;
     }
-    INLINE uint32_t utils::hash(uint8_t* str, uint32_t len) {
+    INLINE uint32_t hash(uint8_t* str, uint32_t len) {
         if (!str)
             return 0;
         uint8_t* n = (uint8_t*)str;
@@ -425,23 +397,23 @@ namespace utils {
                 acc = (acc >> 27) + (acc << 5) + *n++;
         return acc;
     }
-    INLINE std::string utils::generate_mac(const std::string& prefix) {
+    INLINE std::string generate_mac(const std::string& prefix) {
         std::string x = prefix + ":";
         for (int i = 0; i < 5; i++) {
-            x += utils::hex_str(utils::random(0, 255));
+            x += utils::hex_str(random(0, 255));
             if (i != 4)
                 x += ":";
         }
         return x;
     }
     const char hexmap_s[17] = "0123456789abcdef";
-    INLINE std::string utils::hex_str(unsigned char data) {
+    INLINE std::string hex_str(unsigned char data) {
         std::string s(2, ' ');
         s[0] = hexmap_s[(data & 0xF0) >> 4];
         s[1] = hexmap_s[data & 0x0F];
         return s;
     }
-    INLINE int utils::ExtractINT(std::string value)
+    INLINE int ExtractINT(std::string value)
     {
         int valueof;
         std::string tempForINT;
@@ -452,34 +424,34 @@ namespace utils {
 
         return std::atoi(tempForINT.c_str());
     }
-    INLINE std::string utils::random(uint32_t length) {
+    INLINE std::string random(uint32_t length) {
         static auto randchar = []() -> char {
             const char charset[] =
                 "0123456789"
                 "qwertyuiopasdfghjklzxcvbnm"
                 "QWERTYUIOPASDFGHJKLZXCVBNM";
             const uint32_t max_index = (sizeof(charset) - 1);
-            return charset[utils::random(INT16_MAX, INT32_MAX) % max_index];
+            return charset[random(INT16_MAX, INT32_MAX) % max_index];
         };
 
         std::string str(length, 0);
         std::generate_n(str.begin(), length, randchar);
         return str;
     }
-    INLINE void utils::DeleteWhiteSpice(std::string& str) {
+    INLINE void DeleteWhiteSpice(std::string& str) {
         std::string::iterator end_pos = std::remove(str.begin(), str.end(), ' ');
         str.erase(end_pos, str.end());
 
     }
-    INLINE void utils::DeleteNewLine(std::string& str) {
+    INLINE void DeleteNewLine(std::string& str) {
         ReplaceAll(str, "\n", "");
 
     }
-    INLINE void utils::getplayername(std::string& str) {
+    INLINE void getplayername(std::string& str) {
         str.erase(0, 2);
         str.erase(str.size() - 2);
     }
-    INLINE void utils::ReplaceAll(std::string& str, const std::string& from, const std::string& to) {
+    INLINE void ReplaceAll(std::string& str, const std::string& from, const std::string& to) {
         size_t start_pos = 0;
         while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
             str.replace(start_pos, from.length(), to);
@@ -487,7 +459,7 @@ namespace utils {
         }
 
     }
-    INLINE std::vector<std::string> utils::explode(const std::string& delimiter, const std::string& str)
+    INLINE std::vector<std::string>explode(const std::string& delimiter, const std::string& str)
     {
         std::vector<std::string> arr{};
         const int strleng = str.length();
@@ -515,19 +487,18 @@ namespace utils {
         arr.push_back(str.substr(k, i - k));
         return arr;
     }
-    INLINE bool utils::replace(std::string& str, const std::string& from, const std::string& to) {
+    INLINE bool replace(std::string& str, const std::string& from, const std::string& to) {
         size_t start_pos = str.find(from);
         if (start_pos == std::string::npos)
             return false;
         str.replace(start_pos, from.length(), to);
         return true;
     }
-    INLINE bool utils::is_number(const std::string& s) {
+    INLINE bool is_number(const std::string& s) {
         return !s.empty() && std::find_if(s.begin() + (*s.data() == '-' ? 1 : 0), s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
     }
     std::vector<std::string_view> StringTokenize(const std::string_view& strv, char seperator = '|');
-
-    INLINE std::vector<std::string_view> utils::StringTokenize(const std::string_view& strv, char seperator)
+    INLINE std::vector<std::string_view> StringTokenize(const std::string_view& strv, char seperator)
     {
         std::vector<std::string_view> output;
         size_t first = 0;
@@ -547,17 +518,19 @@ namespace utils {
 
         return output;
     }
-
-    INLINE std::string utils::getTemp()
+    INLINE std::string getTemp()
     {
+#ifdef _WIN32
         if (std::string{ getenv("TEMP") }.size() > 0)
             return  getenv("TEMP");
         else if (std::filesystem::temp_directory_path().string().size() > 0)
              return std::filesystem::temp_directory_path().string();
         else
             return "";
+#endif
+        return "";
     }
-    INLINE bool utils::writeFile(std::string Location, std::string Content)
+    INLINE bool writeFile(std::string Location, std::string Content)
     {
         std::ofstream Writer(Location);
         if (!Writer) {
@@ -569,7 +542,7 @@ namespace utils {
         Writer.close();
         return true;
     }
-    INLINE std::string utils::readFile(std::string Location)
+    INLINE std::string readFile(std::string Location)
     {
        std::ifstream Reader(Location);
        if (Reader)
