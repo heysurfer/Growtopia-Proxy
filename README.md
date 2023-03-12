@@ -21,13 +21,29 @@ chmod +x LinuxBuild.sh
 sudo ./LinuxBuild.sh
 ```
 
-## Custom Command
+## Example Custom Command
 Example Command: 
 ```c++
 Commands["test"] = [=](std::string Text){
     m_Info->send_log("Detected 'Test' Command");
 };
 ```
+```c++
+Commands["convertwl"] = [=](std::string Text){
+    GameUpdatePacket packet{ };
+    packet.type = PACKET_ITEM_ACTIVATE_REQUEST;
+    packet.int_data = 242; //world lock id
+    m_Info->ENetManager->sendPacket(packet, getType::Growtopia);
+};
+```
+```c++
+Commands["warp"] = [=](std::string Text) {
+	m_Info->ENetManager->sendPacket("action|join_request\nname|" + Text+"\ninvitedWorld|0", getType::Growtopia, NET_MESSAGE_GAME_MESSAGE);
+    m_Info->send_log("Warping to " + Text);
+};
+```
+## Example Callback
+
 Example CallBack for OnCallFunction : 
 ```c
 callbackStruct _callbackStruct;
@@ -35,8 +51,9 @@ _callbackStruct.target_Case = ("OnDialogRequest");
 _callbackStruct.target_String = ("The Growtopia Gazette");
 _callbackStruct.target_Function = [=](std::string &Dialog) 
 {
-utils::ReplaceAll(Dialog, "The Growtopia Gazette", "the Proxy Gazette");
-return false;
+    utils::ReplaceAll(Dialog, "The Growtopia Gazette", "the Proxy Gazette");
+    // Replaces the string on varlist and sends the packet to the client.
+    return false;
 };
 _callbackStruct.infinity = true;
 callBack_CALL_FUNCTION[fnv32("replace_Gazette")] = _callbackStruct;
@@ -49,8 +66,8 @@ _callbackStruct.target_Case = ("OnDialogRequest");
 _callbackStruct.target_String = ("The Growtopia Gazette");
 _callbackStruct.target_Function = [=](std::string Dialog) 
 {
-m_Info->send_log("Blocked Growtopia Gazette");
-return true;//block dialog 
+    m_Info->send_log("Blocked Growtopia Gazette");
+    return true;//block dialog 
 };
 _callbackStruct.infinity = true;
 callBack_CALL_FUNCTION[fnv32("block_Gazette")] = _callbackStruct;
