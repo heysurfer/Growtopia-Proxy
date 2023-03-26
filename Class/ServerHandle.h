@@ -37,7 +37,7 @@ private:
 	std::unordered_map<int, std::function<bool(ENetPacket*, getType) >> CallBack;
 	std::unordered_map<int, std::function<bool(ENetPacket*, getType) >> CallBack_NET;
 	std::unordered_map<uint32_t, callbackStruct> callBack_CALL_FUNCTION;
-	std::unordered_map<std::string, std::function<void(std::string) >> Commands;
+	std::unordered_map<std::string, std::function<void(std::vector<std::string>) >> Commands;
 
 };
 void serverHandle::init()
@@ -53,10 +53,15 @@ void serverHandle::init()
 	CallBack_NET[NET_MESSAGE_GENERIC_TEXT] = std::bind(&serverHandle::genericText, this, std::placeholders::_1, std::placeholders::_2);
 	CallBack_NET[NET_MESSAGE_GAME_MESSAGE] = std::bind(&serverHandle::gameMessage, this, std::placeholders::_1, std::placeholders::_2);
 	CallBack_NET[NET_MESSAGE_TRACK] = std::bind(&serverHandle::onTrack, this, std::placeholders::_1, std::placeholders::_2);
-	Commands["test"] = [=](std::string Text){
+	Commands["test"] = [=](std::vector<std::string> Arguments){
 		m_Info->send_log("Detected 'Test' Command");
 	};
-	Commands["drop"]/*drop itemid*/ = [=](std::string itemid) {
+	Commands["drop"]/*drop itemid*/ = [=](std::vector<std::string> Arguments) {
+		if (Arguments.empty()) {
+			m_Info->send_log("Arguments not found. The itemID is required to execute the command");
+			return;
+		}
+		auto itemID = Arguments[0];
 		callbackStruct _callbackStruct;
 		_callbackStruct.target_Case = ("OnDialogRequest");
 		_callbackStruct.target_String = ("add_textbox|How many to drop?|left|");
@@ -67,18 +72,20 @@ void serverHandle::init()
 			{
 				auto itemID = var.find("embed_data")->m_values[1];/*add_text_input|count||target|5|*/
 				auto count = var.find("add_text_input")->m_values[2];/*add_text_input|count||target|5|*/
-				auto dropPacket = (std::string)"action|dialog_return\ndialog_name|";
-				dropPacket.append(var.get("end_dialog")+"\n");
-				dropPacket.append(var.get("embed_data")+"|"+ itemID +"\n");
-				dropPacket.append(var.get("add_text_input") + "|" + count);
+				std::string dropPacket = "action|dialog_return\n"
+					"dialog_name|" + var.get("end_dialog") + "\n" +
+					var.get("embed_data") + "|" + itemID + "\n" +
+					var.get("add_text_input") + "|" + count;
+
 				m_Info->ENetManager->sendPacket(dropPacket, getType::Growtopia);
 			}
 			return true;//block dialog request
 		};
-		m_Info->ENetManager->sendPacket("action|drop\n|itemID|" + itemid, getType::Growtopia);
+		m_Info->ENetManager->sendPacket("action|drop\n|itemID|" + itemID, getType::Growtopia);
+	
 		this->callBack_CALL_FUNCTION[fnv32("normal_drop")] = _callbackStruct;
 	};
-	Commands["fd"]/*fast drop*/ = [=](std::string Text) {
+	Commands["fd"]/*fast drop*/ = [=](std::vector<std::string> Arguments) {
 		if (!callBack_CALL_FUNCTION.contains(fnv32("fast_drop"))) {
 			callbackStruct _callbackStruct;
 			_callbackStruct.target_Case = ("OnDialogRequest");
@@ -89,10 +96,10 @@ void serverHandle::init()
 				{
 					auto itemID = var.find("embed_data")->m_values[1];/*add_text_input|count||target|5|*/
 					auto count = var.find("add_text_input")->m_values[2];/*add_text_input|count||target|5|*/
-					auto dropPacket = (std::string)"action|dialog_return\ndialog_name|";
-					dropPacket.append(var.get("end_dialog") + "\n");
-					dropPacket.append(var.get("embed_data") + "|" + itemID + "\n");
-					dropPacket.append(var.get("add_text_input") + "|" + count);
+					std::string dropPacket = "action|dialog_return\n"
+						"dialog_name|" + var.get("end_dialog") + "\n" +
+						var.get("embed_data") + "|" + itemID + "\n" +
+						var.get("add_text_input") + "|" + count;
 					m_Info->ENetManager->sendPacket(dropPacket, getType::Growtopia);
 				}
 				return true;//block dialog 
@@ -109,7 +116,7 @@ void serverHandle::init()
 		else
 			m_Info->send_log("Fast Drop Disabled");
 	};
-	Commands["ft"]/*fast trash*/ = [=](std::string Text) {
+	Commands["ft"]/*fast trash*/ = [=](std::vector<std::string> Arguments) {
 		if (!callBack_CALL_FUNCTION.contains(fnv32("fast_trash"))) {
 			callbackStruct _callbackStruct;
 			_callbackStruct.target_Case = ("OnDialogRequest");
@@ -120,10 +127,10 @@ void serverHandle::init()
 				{
 					auto itemID = var.find("embed_data")->m_values[1];/*embed_data|itemID|target*/
 					std::string count = Dialog.substr(Dialog.find("you have ") + 9, Dialog.length() - Dialog.find("you have ") - 1);
-					auto trashPacket = (std::string)"action|dialog_return\ndialog_name|";
-					trashPacket.append(var.get("end_dialog") + "\n");
-					trashPacket.append(var.get("embed_data") + "|" + itemID + "\n");
-					trashPacket.append(var.get("add_text_input") + "|" + count);
+					std::string trashPacket = "action|dialog_return\n"
+						"dialog_name|" + var.get("end_dialog") + "\n" +
+						var.get("embed_data") + "|" + itemID + "\n" +
+						var.get("add_text_input") + "|" + count;
 					m_Info->ENetManager->sendPacket(trashPacket, getType::Growtopia);
 				}
 				return true;//block dialog 
@@ -140,9 +147,15 @@ void serverHandle::init()
 		else
 			m_Info->send_log("Fast Trash Disabled");
 	};
-	Commands["warp"] = [=](std::string Text) {
-		m_Info->ENetManager->sendPacket("action|join_request\nname|" + Text+"\ninvitedWorld|0", getType::Growtopia, NET_MESSAGE_GAME_MESSAGE);
-		m_Info->send_log("Warping to " + Text);
+	Commands["warp"] = [=](std::vector<std::string> Arguments) {
+		if (Arguments.empty())
+		{
+			m_Info->send_log("Arguments not found. The WorldName is required to execute the command");
+			return;
+		}
+		std::string worldName = Arguments[0]; // get the world name from the vector
+		m_Info->ENetManager->sendPacket("action|join_request\nname|" + worldName +"\ninvitedWorld|0", getType::Growtopia, NET_MESSAGE_GAME_MESSAGE);
+		m_Info->send_log("Warping to " + worldName);
 	};
 
 	callbackStruct _callbackStruct;
@@ -544,11 +557,15 @@ bool serverHandle::genericText(ENetPacket* packet, getType type)
 		{
 			auto chatText =  (var.get(1).m_values.size()>0) ? var.get(1).m_values[1] : "Null";
 			chatText.erase(0, 1);
-			auto vec = utils::explode(" ", chatText);
-			if ( Commands.contains(vec[0]) )
-			{
-				Commands[vec[0]]( (vec.size()>1 ? vec[1] : ""));
-				return true;
+			std::vector<std::string> vec = utils::explode(" ", chatText);
+			if (!vec.empty()) {
+				std::string command = vec[0];
+				vec.erase(vec.begin()); // Remove first element (command)
+				// Execute command if it exists in Commands map
+				if (Commands.contains(command)) {
+					Commands[command](vec); // Pass remaining arguments as vector
+					return true;
+				}
 			}
 		}
 	}

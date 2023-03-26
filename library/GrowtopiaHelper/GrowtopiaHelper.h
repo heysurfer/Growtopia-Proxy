@@ -712,7 +712,10 @@ public:
         return 0;
     }
     inline long long get_long(const std::string& key) { //assumes validate_ints
-        return atoll(find(key)->m_value.c_str());
+        auto pair = find(key);
+        if (pair)
+            return atoll(find(key)->m_value.c_str());
+        return 0.0f;
     }
     size_t size() const {
         return m_pairs.size();
