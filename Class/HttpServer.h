@@ -92,7 +92,7 @@ public:
     {
         if (server) {
             server->stop();
-            delete server;
+	    server.reset();
         }
     }
 private:
