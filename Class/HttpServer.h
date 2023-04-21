@@ -97,5 +97,6 @@ public:
     }
 private:
 	std::shared_ptr< httplib::SSLServer> server;
-};
 
+
+};

@@ -1286,6 +1286,8 @@ typedef struct Item {
 struct PlayerInventory {
     uint32_t slotCount;
     uint16_t itemCount;
+    uint8_t version;
+
     bool doesItemExist(uint32_t itemID) {
         return items.contains(itemID);
     }
