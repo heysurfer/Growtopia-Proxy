@@ -83,6 +83,9 @@
     <ClInclude Include="..\library\captchaSolver\CaptchaSolver.h">
       <Filter>Class</Filter>
     </ClInclude>
+    <ClInclude Include="..\library\binaryReader\binaryReader.h">
+      <Filter>Class</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Enet">

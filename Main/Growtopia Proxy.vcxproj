@@ -35,6 +35,7 @@
     <ClInclude Include="..\Class\HttpServer.h" />
     <ClInclude Include="..\Class\Information.h" />
     <ClInclude Include="..\Class\ServerHandle.h" />
+    <ClInclude Include="..\library\binaryReader\binaryReader.h" />
     <ClInclude Include="..\library\captchaSolver\CaptchaSolver.h" />
     <ClInclude Include="..\library\enet\include\callbacks.h" />
     <ClInclude Include="..\library\enet\include\enet.h" />
@@ -103,6 +104,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)\build\$(Configuration)\</OutDir>
+  </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <VcpkgUseStatic>true</VcpkgUseStatic>
   </PropertyGroup>
