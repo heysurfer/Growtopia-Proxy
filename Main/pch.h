@@ -54,6 +54,7 @@
 #endif
 
 #include "../library/enet/include/enet.h"
+#include "../library/binaryReader/binaryReader.h"
 #include "../library/GrowtopiaHelper/GrowtopiaHelper.h"
 
 #include "../struct/Player.h"
