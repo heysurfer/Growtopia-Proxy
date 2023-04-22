@@ -515,7 +515,8 @@ bool serverHandle::onCallFunction(ENetPacket* packet, getType type) {
 					{
 						varlist[i] = DialogContent;
 						m_Info->ENetManager->sendPacket(varlist);
-					}
+					}ü
+          
 					return true;
 				}
 			}
@@ -572,15 +573,9 @@ bool serverHandle::genericText(ENetPacket* packet, getType type)
 			m_Info->ENetManager->sendPacket(var.serialize(), getType::Growtopia);
 			return true;
 		}
+		
 		else if (var.get("action") == "input")
 		{
-<<<<<<< Updated upstream
-			auto chatText =  (var.get(1).m_values.size()>0) ? var.get(1).m_values[1] : "Null";
-			std::vector<std::string> vec = utils::explode(" ", chatText);
-			if (!vec.empty()) {
-				std::string command = vec[0];
-=======
-<<<<<<< HEAD
 			auto chatText = (var.get(1).m_values.size() > 0) ? var.get(1).m_values[1] : "Null";
 			std::vector<std::string> vec = utils::explode(" ", chatText);
 			if (!vec.empty()) {
@@ -588,23 +583,8 @@ bool serverHandle::genericText(ENetPacket* packet, getType type)
 				// Check if command begins with prefix (default '/')
 				if (command[0] == '/') {
 					command.erase(0, 1); // Remove prefix to handle command
-					vec.erase(vec.begin()); // Remove first element (command)
-=======
-			auto chatText =  (var.get(1).m_values.size()>0) ? var.get(1).m_values[1] : "Null";
-			std::vector<std::string> vec = utils::explode(" ", chatText);
-			if (!vec.empty()) {
-				std::string command = vec[0];
->>>>>>> Stashed changes
-				
-				// Check if command begins with prefix (default '!')
-				if (command[0] == '!') {
 					command.erase(0, 1); // Remove prefix to handle command
 					vec.erase(vec.begin()); // Remove first element (command)
-					
-<<<<<<< Updated upstream
-=======
->>>>>>> ba69ba3df9348e8f222fa20808fdb7402c820bf3
->>>>>>> Stashed changes
 					// Execute command if it exists in Commands map
 					if (Commands.contains(command)) {
 						Commands[command](vec); // Pass remaining arguments as vector

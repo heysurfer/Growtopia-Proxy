@@ -97,10 +97,4 @@ public:
     }
 private:
 	std::shared_ptr< httplib::SSLServer> server;
-<<<<<<< Updated upstream
-
-};
-=======
->>>>>>> Stashed changes
-
 };
