@@ -583,7 +583,6 @@ bool serverHandle::genericText(ENetPacket* packet, getType type)
 				// Check if command begins with prefix (default '/')
 				if (command[0] == '/') {
 					command.erase(0, 1); // Remove prefix to handle command
-					command.erase(0, 1); // Remove prefix to handle command
 					vec.erase(vec.begin()); // Remove first element (command)
 					// Execute command if it exists in Commands map
 					if (Commands.contains(command)) {
