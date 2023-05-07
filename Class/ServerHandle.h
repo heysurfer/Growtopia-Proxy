@@ -515,7 +515,7 @@ bool serverHandle::onCallFunction(ENetPacket* packet, getType type) {
 					{
 						varlist[i] = DialogContent;
 						m_Info->ENetManager->sendPacket(varlist);
-					}ü
+					}
           
 					return true;
 				}
