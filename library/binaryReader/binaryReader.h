@@ -13,7 +13,7 @@ public:
 	template <typename T>
 	T read(bool updatePos = true)
 	{
-		T data;
+		T data{};
 		if (check_position(sizeof(T)))
 		{
 			memcpy(&data, data_ + position_, sizeof(T));
