@@ -1608,11 +1608,10 @@ enet_protocol_send_outgoing_commands (ENetHost * host, ENetEvent * event, int ch
     if (host->usingNewPacket) {
         enet_uint16 port = host->peers->address.port;
         enet_uint16 rand1 = rand() % (port + 1);
-        enet_uint16 rand2 = rand();
 
         newHeader->integrity[0] = htons(rand1);
         newHeader->integrity[1] = htons(rand1 ^ port);
-        newHeader->integrity[2] = ntohs(rand2 & 0xF7DF | 0x9005);
+        newHeader->integrity[2] = 24467;
     }
 
     ENetPeer * currentPeer;
