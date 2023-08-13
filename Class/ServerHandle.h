@@ -359,6 +359,7 @@ bool serverHandle::onSendInventoryState(ENetPacket* packet, getType type) {
 
 	if (type == getType::Growtopia)
 	{
+		m_Info->LocalClient->inventory.items.clear();
 		binaryReader _binaryReader(packet->data + sizeof(GameUpdatePacket), packet->dataLength);
 		_binaryReader.set(m_Info->LocalClient->inventory.version);
 		_binaryReader.set(m_Info->LocalClient->inventory.slotCount);
@@ -401,13 +402,9 @@ bool serverHandle::onSendMapState(ENetPacket* packet, getType type) {
 	{
 		binaryReader _binaryReader(packet->data + sizeof(GameUpdatePacket), packet->dataLength);
 		uint16_t m_version(_binaryReader.read<uint16_t>());
-		if (m_version < 24)
-		{
-			_binaryReader.skip(4);
-			m_Info->World->name = _binaryReader.read_string(_binaryReader.read<uint16_t>());
-			Print("Current World Name Is %s", m_Info->World->name.c_str());
-		}
-		
+		_binaryReader.skip(4);
+		m_Info->World->name = _binaryReader.read_string(_binaryReader.read<uint16_t>());
+		Print("Current World Name Is %s", m_Info->World->name.c_str());
 	}
 	else if (type == getType::Local)
 	{
