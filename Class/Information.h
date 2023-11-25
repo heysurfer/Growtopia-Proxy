@@ -72,6 +72,9 @@ public:
 			this->realIP = var.get("server");
 			this->realPort = var.get_int("port");
 			this->type2 = var.get_int("type2");
+			this->currentIp = var.get("server");
+			this->currentPort = var.get_int("port");
+
 		}
 		else
 			Print("Requested Failed Error : %s", httplib::to_string(res.error()).c_str());
@@ -86,8 +89,8 @@ public:
 	std::string captchaSolverKey;
 	int realPort;
 	int type2;
-	std::string currentIp = "213.179.209.168";
-	int currentPort = 17197;
+	std::string currentIp;
+	int currentPort ;
 private:
 };
 
